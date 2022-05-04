@@ -2,8 +2,10 @@ package com.stephaniemavis.cloudflare.url.shortener.controller;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.OffsetDateTime;
+import java.util.List;
 
-import com.stephaniemavis.cloudflare.url.shortener.data.UrlMapping;
+import com.stephaniemavis.cloudflare.url.shortener.data.ShortUrl;
 import com.stephaniemavis.cloudflare.url.shortener.data.UrlRepository;
 
 import org.springframework.http.HttpStatus;
@@ -25,15 +27,15 @@ class UrlShortenerController {
 
 
     @PutMapping("/shorten")
-    UrlMapping createOrFetchUrlMapping(@RequestBody String longUrl) throws URISyntaxException{
+    String createOrFetchUrlMapping(@RequestBody String longUrl) throws URISyntaxException{
         URI longUrlUri = new URI(longUrl);
-        UrlMapping mapping = repository.getMapping(longUrlUri);
-        if(mapping == null){
-            mapping  = new UrlMapping(longUrl, longUrlUri);
-            repository.addUrlMapping(mapping);
+        String shortUrlId = repository.getShortUrlId(longUrlUri);
+        if(shortUrlId == null){
+            shortUrlId  = ShortUrl.generateShortUrl(longUrl);
+            repository.addUrlMapping(shortUrlId, longUrlUri);
         }
 
-        return mapping;
+        return shortUrlId;
     }
 
     @DeleteMapping("/delete/{id}")
@@ -43,7 +45,15 @@ class UrlShortenerController {
 
     @GetMapping("/link/{id}")
     ResponseEntity<Void> handleRedirect(@PathVariable String shortUrlId){
-        return ResponseEntity.status(HttpStatus.FOUND).location(repository.getLongUrl(shortUrlId)).build();
+        URI destination = repository.getLongUrl(shortUrlId);
+        if(destination == null){
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+        }
+        return ResponseEntity.status(HttpStatus.FOUND).location(destination).build();
     }
 
+    @GetMapping("/usage/{id}")
+    List<OffsetDateTime> getUsageInfo(@PathVariable String shortUrlId){
+        return repository.getUsageInfo(shortUrlId);
+    }
 }
