@@ -2,6 +2,9 @@ package com.stephaniemavis.cloudflare.url.shortener.data;
 
 import java.net.URI;
 import java.util.List;
+
+import com.google.common.collect.ImmutableList;
+
 import java.util.Arrays;
 import java.util.HashMap;
 import java.time.OffsetDateTime;
@@ -53,7 +56,11 @@ public class UrlRepository {
     }
 
     public List<OffsetDateTime> getUsageInfo(String shortUrlId) {
-        return urlAccess.get(shortUrlId);
+        List<OffsetDateTime> usageList = urlAccess.get(shortUrlId);
+        if(usageList == null){
+            return ImmutableList.of();
+        }
+        return usageList;
     }
     
 }
