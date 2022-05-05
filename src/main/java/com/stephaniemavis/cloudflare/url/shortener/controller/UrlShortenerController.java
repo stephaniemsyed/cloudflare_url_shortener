@@ -38,13 +38,13 @@ class UrlShortenerController {
         return shortUrlId;
     }
 
-    @DeleteMapping("/delete/{id}")
-    void deleteUrlMapping(@PathVariable String shortUrlId){
+    @DeleteMapping("/delete/{shortUrlId}")
+    void deleteUrlMapping(@PathVariable(name="shortUrlId") String shortUrlId){
         repository.deleteMapping(shortUrlId);
     }
 
-    @GetMapping("/link/{id}")
-    ResponseEntity<Void> handleRedirect(@PathVariable String shortUrlId){
+    @GetMapping("/link/{shortUrlId}")
+    ResponseEntity<Void> handleRedirect(@PathVariable(name="shortUrlId") String shortUrlId){
         URI destination = repository.getLongUrl(shortUrlId);
         if(destination == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
@@ -52,8 +52,8 @@ class UrlShortenerController {
         return ResponseEntity.status(HttpStatus.FOUND).location(destination).build();
     }
 
-    @GetMapping("/usage/{id}")
-    List<OffsetDateTime> getUsageInfo(@PathVariable String shortUrlId){
+    @GetMapping("/usage/{shortUrlId}")
+    List<OffsetDateTime> getUsageInfo(@PathVariable(name="shortUrlId") String shortUrlId){
         return repository.getUsageInfo(shortUrlId);
     }
 }

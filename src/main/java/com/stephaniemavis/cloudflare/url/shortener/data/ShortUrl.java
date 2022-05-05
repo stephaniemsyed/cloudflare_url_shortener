@@ -16,6 +16,6 @@ public class ShortUrl {
         md.update(longUrl.getBytes());
         byte[] digest = md.digest();
         String encoded = Base64.getEncoder().encodeToString(digest);
-        return encoded;
+        return encoded.replace('+', '-').replace('/', '_').replace("=", "");
     }
 }
