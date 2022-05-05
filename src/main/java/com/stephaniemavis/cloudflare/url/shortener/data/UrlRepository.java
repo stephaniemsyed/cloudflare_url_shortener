@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.google.common.collect.ImmutableList;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.time.OffsetDateTime;
@@ -51,7 +52,9 @@ public class UrlRepository {
         if(urlAccess.containsKey(shortUrlId)){
             urlAccess.get(shortUrlId).add(OffsetDateTime.now());
         }else{
-            urlAccess.put(shortUrlId, Arrays.asList(OffsetDateTime.now()));
+            List<OffsetDateTime> list = new ArrayList<OffsetDateTime>();
+            list.add(OffsetDateTime.now());
+            urlAccess.put(shortUrlId, list);
         }
     }
 

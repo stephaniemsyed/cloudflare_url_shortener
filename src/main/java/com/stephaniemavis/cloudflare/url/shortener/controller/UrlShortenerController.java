@@ -47,7 +47,9 @@ class UrlShortenerController {
 
     @GetMapping("/link/{shortUrlId}")
     ResponseEntity<Void> handleRedirect(@PathVariable(name="shortUrlId") String shortUrlId){
+        repository.logAccess(shortUrlId);
         URI destination = repository.getLongUrl(shortUrlId);
+        System.out.println("Redirect to " + destination);
         if(destination == null){
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         }
