@@ -4,9 +4,11 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.time.OffsetDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.stephaniemavis.cloudflare.url.shortener.data.ShortUrl;
 import com.stephaniemavis.cloudflare.url.shortener.data.UrlRepository;
+import com.stephaniemavis.cloudflare.url.shortener.data.UsageStats;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,7 +55,17 @@ class UrlShortenerController {
     }
 
     @GetMapping("/usage/{shortUrlId}")
-    List<OffsetDateTime> getUsageInfo(@PathVariable(name="shortUrlId") String shortUrlId){
-        return repository.getUsageInfo(shortUrlId);
+    UsageStats getUsageInfo(@PathVariable(name="shortUrlId") String shortUrlId){
+       return getUsageStatsFromList(repository.getUsageInfo(shortUrlId));
+    }
+
+    private UsageStats getUsageStatsFromList(List<OffsetDateTime> list){
+        OffsetDateTime now = OffsetDateTime.now();
+        OffsetDateTime pastDay = now.minusDays(1);
+        OffsetDateTime pastWeek = now.minusWeeks(1);
+        int hitsPastDay = list.stream().filter(((t) -> t.isAfter(pastDay))).collect(Collectors.toList()).size();
+        int hitsPastWeek = list.stream().filter(((t) -> t.isAfter(pastWeek))).collect(Collectors.toList()).size();
+        return new UsageStats(hitsPastDay, hitsPastWeek, list.size());
+    
     }
 }
